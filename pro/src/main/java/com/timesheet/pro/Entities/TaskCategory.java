@@ -22,7 +22,6 @@ public class TaskCategory {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
     @OneToMany(mappedBy = "category",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Timesheet> timesheets;

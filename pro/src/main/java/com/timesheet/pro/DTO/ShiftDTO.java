@@ -13,4 +13,3 @@ public class ShiftDTO {
     private String shiftName; // values must match DB ENUM
     private String discription;
 }
-

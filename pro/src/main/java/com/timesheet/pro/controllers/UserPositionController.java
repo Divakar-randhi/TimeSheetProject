@@ -23,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserPositionController {
     private final UserPositionService service;
-
     @GetMapping("/GetAll")
     public List<UserPosition> getAll() { return service.findAll(); }
 

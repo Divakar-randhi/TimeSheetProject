@@ -27,7 +27,6 @@ public class User {
     @JoinColumn(name = "role_id")
     @JsonIgnore
     private Role role;
-
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 

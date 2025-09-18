@@ -48,10 +48,6 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @GetMapping("/hello")
-    public String hello() {
-        return "Hello, World!";
-    }
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         logger.info("📥 Register request received for username: {}", request.getUsername());
@@ -98,12 +94,9 @@ public class AuthController {
             RefreshToken tokenEntity = new RefreshToken();
             tokenEntity.setToken(refreshToken);
             tokenEntity.setUsername(request.getUsername());
-          //  tokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)); // 7 days
+            //tokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)); // 7 days
             tokenEntity.setExpiryDate(new java.sql.Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)); // 7 days
             refreshTokenRepo.save(tokenEntity);
-            logger.info("🔐 Refresh token saved: {}", refreshToken);
-            refreshTokenRepo.findAll().forEach(t -> logger.info("🔍 Stored token: {}", t.getToken()));
-            logger.info("✅ User authenticated successfully: {}", request.getUsername());
 
             return ResponseEntity.ok(new AuthResponse(accessToken, refreshToken));
         } catch (Exception e) {

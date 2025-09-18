@@ -28,7 +28,6 @@ public class Team {
  @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
  @JsonIgnore
  private List<User> users;
-
  private String description;
   
 }

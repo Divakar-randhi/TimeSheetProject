@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 @Entity
 @Table(name = "position")
 @Data @NoArgsConstructor @AllArgsConstructor @Builder

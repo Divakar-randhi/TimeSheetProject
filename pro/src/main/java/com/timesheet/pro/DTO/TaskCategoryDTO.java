@@ -1,9 +1,5 @@
 package com.timesheet.pro.DTO;
-
-
-
 import lombok.Data;
-
 @Data
 public class TaskCategoryDTO {
     private Integer categoryId;

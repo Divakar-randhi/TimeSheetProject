@@ -28,7 +28,6 @@ public class UserPosition {
     @JoinColumn(name = "user_id",insertable = true, updatable = true, nullable = false)
     @JsonIgnore
     private User user;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "position_id",insertable = true, updatable = true, nullable = false)
     @JsonIgnore

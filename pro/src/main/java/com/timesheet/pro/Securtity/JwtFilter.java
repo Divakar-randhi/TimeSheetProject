@@ -51,7 +51,7 @@ protected void doFilterInternal(HttpServletRequest request, HttpServletResponse 
         filterChain.doFilter(request, response);
         return;
     }
- 
+
     String jwt = null;
     String username = null;
  

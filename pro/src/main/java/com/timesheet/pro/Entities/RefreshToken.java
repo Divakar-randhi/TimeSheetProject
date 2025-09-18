@@ -8,8 +8,6 @@ import jakarta.persistence.Entity;
 import java.sql.Date;
 
 
- 
-
 @Entity
 @Data
 public class RefreshToken {

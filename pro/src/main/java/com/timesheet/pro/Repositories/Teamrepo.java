@@ -4,6 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 
-public interface Teamrepo extends JpaRepository<Team, Integer> {
-  
+public interface Teamrepo extends JpaRepository<Team, Integer> { 
 }

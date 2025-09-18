@@ -33,7 +33,6 @@ public class Timesheet {
 
     // hours_worked TIME
     private LocalTime hoursWorked;
-
     @Column(columnDefinition = "TEXT")
     private String details;
 }

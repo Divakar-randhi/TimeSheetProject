@@ -11,7 +11,6 @@ public class AuthResponse {
     // public AuthResponse(String token) { this.token = token; }
     private String accessToken;
     private String refreshToken;
-
     public AuthResponse(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;

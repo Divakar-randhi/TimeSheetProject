@@ -33,7 +33,6 @@ public class Role {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-
     @OneToMany(mappedBy = "role", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<User> users;

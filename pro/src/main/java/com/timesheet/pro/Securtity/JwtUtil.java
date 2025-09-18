@@ -19,7 +19,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 public class JwtUtil {
  
     private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
- 
+
     // Use a secure, randomly generated key (at least 32 bytes for HS256)
     private final String SECRET_KEY = "8Y2jX5kP9mW3qZ7tR4vN6bL2hF8gD1cJ3xK9pQ5wT2rY6mB";
  
