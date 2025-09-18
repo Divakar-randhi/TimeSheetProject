@@ -34,9 +34,9 @@ public class RoleController {
 
     @GetMapping("/GetAll")
     @Operation(summary = "Get all Roles", description = "Retrieve all Roles details.")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Order360 retrieved successfully."),
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "roles retrieved successfully."),
 			@ApiResponse(responseCode = "401", description = "forebidden"),
-			@ApiResponse(responseCode = "404", description = "Order360 not found"),
+			@ApiResponse(responseCode = "404", description = "role not found"),
 			@ApiResponse(responseCode = "500", description = "Internal server error") })
     public List<Role> getAll() { return roleService.findAll(); }
 

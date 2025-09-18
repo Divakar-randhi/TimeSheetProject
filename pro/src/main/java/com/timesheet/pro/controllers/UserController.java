@@ -11,10 +11,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.timesheet.pro.DTO.UserPositionDTO;
 
 import com.timesheet.pro.DTO.UserDTO;
 import com.timesheet.pro.Entities.User;
 import com.timesheet.pro.Services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,9 +26,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/GetAll")
-    public List<User> getAll() { return userService.findAll(); }
+    public List<User> getAll() { 
+        return userService.findAll(); }
 
     @GetMapping("/{id}")
     public User getById(@PathVariable Integer id) { return userService.findById(id); }
@@ -34,6 +39,7 @@ public class UserController {
     public ResponseEntity<User> create(@RequestBody UserDTO dto) {
         return ResponseEntity.ok(userService.create(dto));
     }
+
 
     @PutMapping("/{id}")
     public User update(@PathVariable Integer id, @RequestBody UserDTO dto) {
