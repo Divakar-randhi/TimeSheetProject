@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import com.timesheet.pro.Entities.AppUser;
 import com.timesheet.pro.Repositories.AppUserRepository;
 
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
@@ -42,4 +41,3 @@ public class CustomUserDetailsService implements UserDetailsService {
         );
     }
 }
-

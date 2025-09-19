@@ -18,5 +18,4 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long> {
     logger.debug("🔎 Checking if username exists in DB: {}", username);
     return findByUsername(username);
 }
-    Optional<AppUser> findByUsername(Object username);
 }

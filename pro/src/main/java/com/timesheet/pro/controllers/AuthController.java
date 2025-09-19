@@ -27,6 +27,7 @@ import com.timesheet.pro.Repositories.AppUserRepository;
 import com.timesheet.pro.Repositories.RefreshTokenRepository;
 import com.timesheet.pro.Securtity.JwtUtil;
 
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -94,7 +95,6 @@ public class AuthController {
             RefreshToken tokenEntity = new RefreshToken();
             tokenEntity.setToken(refreshToken);
             tokenEntity.setUsername(request.getUsername());
-            //tokenEntity.setExpiryDate(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)); // 7 days
             tokenEntity.setExpiryDate(new java.sql.Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)); // 7 days
             refreshTokenRepo.save(tokenEntity);
 
