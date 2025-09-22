@@ -35,6 +35,15 @@ public class RoleService {
         return roleRepository.save(existing);
     }
 
-    public void delete(Integer id) { roleRepository.deleteById(id); }
+    public void delete(Integer id) { roleRepository.deleteById(id); 
+    }
+
+
+    public Role findByRoleName(String roleName) {
+        return roleRepository.findByRoleName(roleName);
+    }
+    
+    
+    
 }
 

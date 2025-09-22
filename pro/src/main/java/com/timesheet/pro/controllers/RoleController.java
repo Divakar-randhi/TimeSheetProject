@@ -56,5 +56,8 @@ public class RoleController {
 
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable Integer id) {  roleService.delete(id); }
+
+    @GetMapping("/getrole/{rolename}")
+    public void getRole(@PathVariable String rolename) {  roleService.findByRoleName(rolename); }
 }
 
