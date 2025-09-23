@@ -1,6 +1,7 @@
 package com.timesheet.pro.Entities;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -88,4 +89,24 @@ private String photoContentType;
 
 @Column(name = "photo_filename", length = 255)
 private String photoFileName;
+
+@Column(name = "created_at", nullable = false, updatable = false)
+private LocalDateTime createdAt;
+
+@Column(name = "updated_at")
+private LocalDateTime updatedAt;
+
+@PrePersist
+protected void onCreate() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+}
+
+@PreUpdate
+protected void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+}
+
+
+
 }
