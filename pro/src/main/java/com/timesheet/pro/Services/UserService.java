@@ -1,78 +1,163 @@
 package com.timesheet.pro.Services;
 
-import java.util.List;
 
-import org.springframework.stereotype.Service;
-
-import com.timesheet.pro.DTO.UserDTO;
-import com.timesheet.pro.Entities.Role;
 import com.timesheet.pro.Entities.User;
-import com.timesheet.pro.Repositories.RoleRepository;
 import com.timesheet.pro.Repositories.UserRepository;
 
+import com.timesheet.pro.Exceptions.BadRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
+
+import com.timesheet.pro.Exceptions.BadRequestException;
+import com.timesheet.pro.Exceptions.NotFoundException;
+import com.timesheet.pro.DTO.UserResponse;
+import com.timesheet.pro.DTO.UserCreateRequest;
+import com.timesheet.pro.Enums.EducationQualification;
+import com.timesheet.pro.Enums.Gender;
+import com.timesheet.pro.Enums.Relationship;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
 
-    public User findById(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
-    }
+    private static final long MAX_PHOTO_SIZE = 2 * 1024 * 1024; // 2 MB
 
-    private Role getRole(Integer roleId) {
-        return roleRepository.findById(roleId)
-                .orElseThrow(() -> new IllegalArgumentException("Role not found: " + roleId));
-    }
-
-    public User create(UserDTO dto) {
+    @Transactional
+    public UserResponse createUser(UserCreateRequest req) {
         User user = User.builder()
-                .role(getRole(dto.getRoleId()))
-                .firstName(dto.getFirstName())
-                .middleName(dto.getMiddleName())
-                .lastName(dto.getLastName())
-                .birthDate(dto.getBirthDate())
-                .gender(dto.getGender())
-                .skills(dto.getSkills())
-                .address(dto.getAddress())
-                .contactNumber(dto.getContactNumber())
-                .emergencyContactName(dto.getEmergencyContactName())
-                .emergencyContactNumber(dto.getEmergencyContactNumber())
-                .relationship(dto.getRelationship())
-                .educationQualification(dto.getEducationQualification())
+                .firstName(req.getFirstName())
+                .middleName(req.getMiddleName())
+                .lastName(req.getLastName())
+                .contactNumber(req.getContactNumber())
+                .birthDate(req.getBirthDate())
+                .gender(req.getGender())
+                .skills(req.getSkills())
+                .address(req.getAddress())
+                .emergencyContactName(req.getEmergencyContactName())
+                .emergencyContactNumber(req.getEmergencyContactNumber())
+                .relationship(req.getRelationship())
+                .educationQualification(req.getEducationQualification())
                 .build();
 
-        return userRepository.save(user);
+        if (req.getPhoto() != null && !req.getPhoto().isEmpty()) {
+            applyPhoto(user, req.getPhoto());
+        }
+
+        User saved = userRepository.save(user);
+        return toResponse(saved);
     }
 
-    public User update(Integer id, UserDTO dto) {
-        User existing = findById(id);
-
-        if (dto.getRoleId() != null) existing.setRole(getRole(dto.getRoleId()));
-        if (dto.getFirstName() != null) existing.setFirstName(dto.getFirstName());
-        if (dto.getMiddleName() != null) existing.setMiddleName(dto.getMiddleName());
-        if (dto.getLastName() != null) existing.setLastName(dto.getLastName());
-        existing.setBirthDate(dto.getBirthDate());
-        if (dto.getGender() != null) existing.setGender(dto.getGender());
-        existing.setSkills(dto.getSkills());
-        existing.setAddress(dto.getAddress());
-        if (dto.getContactNumber() != null) existing.setContactNumber(dto.getContactNumber());
-        existing.setEmergencyContactName(dto.getEmergencyContactName());
-        existing.setEmergencyContactNumber(dto.getEmergencyContactNumber());
-        if (dto.getRelationship() != null) existing.setRelationship(dto.getRelationship());
-        if (dto.getEducationQualification() != null) existing.setEducationQualification(dto.getEducationQualification());
-
-        return userRepository.save(existing);
+    @Transactional
+    public void uploadPhoto(Integer userId, MultipartFile photo) {
+        User user = getUserById(userId);
+        applyPhoto(user, photo);
+        userRepository.save(user);
     }
 
-    public void delete(Integer id) {
-        userRepository.deleteById(id);
+    @Transactional(readOnly = true)
+    public byte[] getPhoto(Integer userId) {
+        User user = getUserById(userId);
+        if (user.getPhotoData() == null) {
+            throw new NotFoundException("Photo not found for user " + userId);
+        }
+        return user.getPhotoData();
     }
+
+    private void applyPhoto(User user, MultipartFile photo) {
+        validatePhoto(photo);
+        try {
+            user.setPhotoData(photo.getBytes());
+            user.setPhotoContentType(photo.getContentType());
+            user.setPhotoFileName(photo.getOriginalFilename());
+        } catch (IOException e) {
+            throw new BadRequestException("Failed to read photo");
+        }
+    }
+
+    private void validatePhoto(MultipartFile photo) {
+        if (photo.getSize() > MAX_PHOTO_SIZE) {
+            throw new BadRequestException("Photo too large. Max 2 MB allowed");
+        }
+        String type = photo.getContentType();
+        if (type == null || !(type.equals("image/jpeg") || type.equals("image/png") || type.equals("image/webp"))) {
+            throw new BadRequestException("Only JPEG, PNG, WEBP formats allowed");
+        }
+    }
+
+    public User getUserById(Integer id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found with ID: " + id));
+    }
+
+    public UserResponse toResponse(User user) {
+    return UserResponse.builder()
+            .userId(user.getUserId())
+            .firstName(user.getFirstName())
+            .middleName(user.getMiddleName())
+            .lastName(user.getLastName())
+            .birthDate(user.getBirthDate())
+            //.gender(user.getGender() != null ? user.getGender().name() : null)
+            .gender(user.getGender())
+            .skills(user.getSkills())
+            .address(user.getAddress())
+            .contactNumber(user.getContactNumber())
+            .emergencyContactName(user.getEmergencyContactName())
+            .emergencyContactNumber(user.getEmergencyContactNumber())
+            //.relationship(user.getRelationship() != null ? user.getRelationship().name() : null)
+            .relationship(user.getRelationship())
+            //.educationQualification(user.getEducationQualification() != null ? user.getEducationQualification().name() : null)
+            .educationQualification(user.getEducationQualification())
+            .hasPhoto(user.getPhotoData() != null)
+            .photoDownloadUrl(user.getPhotoData() != null ? "/api/users/" + user.getUserId() + "/photo" : null)
+            .build();
+}
+
+            // get all
+            @Transactional(readOnly = true)
+            public List<UserResponse> getAllUsers() {
+            return userRepository.findAll().stream()
+                 .map(this::toResponse)
+                .toList();
+            }
+
+            // update
+            @Transactional
+            public UserResponse updateUser(Integer id, UserCreateRequest req) {
+            User user = getUserById(id);
+
+            user.setFirstName(req.getFirstName());
+            user.setMiddleName(req.getMiddleName());
+            user.setLastName(req.getLastName());
+            user.setContactNumber(req.getContactNumber());
+            user.setBirthDate(req.getBirthDate());
+            user.setGender(req.getGender());
+            user.setSkills(req.getSkills());
+            user.setAddress(req.getAddress());
+            user.setEmergencyContactName(req.getEmergencyContactName());
+            user.setEmergencyContactNumber(req.getEmergencyContactNumber());
+            user.setRelationship(req.getRelationship());
+            user.setEducationQualification(req.getEducationQualification());
+
+            if (req.getPhoto() != null && !req.getPhoto().isEmpty()) {
+                applyPhoto(user, req.getPhoto());
+            }
+
+            return toResponse(userRepository.save(user));
+        }
+
+        // Delete User
+            @Transactional
+            public void deleteUser(Integer id) {
+            User user = getUserById(id);
+            userRepository.delete(user);
+            }
+
 }

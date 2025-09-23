@@ -77,4 +77,15 @@ public class User {
     @JoinColumn(name = "team_id", insertable = true, updatable = true)
     @JsonIgnore
     private Team team;
+
+    @Lob
+@Basic(fetch = FetchType.LAZY)
+@Column(name = "photo_data")
+private byte[] photoData;
+
+@Column(name = "photo_content_type", length = 100)
+private String photoContentType;
+
+@Column(name = "photo_filename", length = 255)
+private String photoFileName;
 }
