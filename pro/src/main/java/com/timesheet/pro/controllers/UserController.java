@@ -16,7 +16,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/upi/users")
 @RequiredArgsConstructor
 public class UserController {
 
