@@ -23,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     // ✅ Create user
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(path = "/create",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponse> createUser(
             @RequestParam String firstName,
             @RequestParam String middleName,
