@@ -20,12 +20,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.timesheet.pro.DTO.AuthRequest;
 import com.timesheet.pro.DTO.AuthResponse;
+import com.timesheet.pro.DTO.ForgotPasswordRequest;
 import com.timesheet.pro.DTO.RegisterRequest;
+import com.timesheet.pro.DTO.ResetPasswordRequest;
 import com.timesheet.pro.Entities.AppUser;
 import com.timesheet.pro.Entities.RefreshToken;
 import com.timesheet.pro.Repositories.AppUserRepository;
 import com.timesheet.pro.Repositories.RefreshTokenRepository;
 import com.timesheet.pro.Securtity.JwtUtil;
+import com.timesheet.pro.Services.AppUserService;
+import com.timesheet.pro.Services.EmailService;
+import com.timesheet.pro.Services.PasswordService;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RestController;
+
 
 
 @RestController
@@ -49,34 +61,20 @@ public class AuthController {
     @Autowired
     private JwtUtil jwtUtil;
 
+  //  @Autowired private PasswordEncoder passwordEncoder;
+   // @Autowired private AuthenticationManager authManager;
+
+     @Autowired private AppUserService appUserService;
+    @Autowired private EmailService emailService;
+
+    @Autowired private PasswordService passwordService;
+
+  
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        logger.info("📥 Register request received for username: {}", request.getUsername());
-
-        if (request.getUsername() == null || request.getPassword() == null || request.getRole() == null) {
-            logger.warn("❌ Missing fields in request: {}", request);
-            return ResponseEntity.badRequest().body("Missing required fields");
-        }
-
-        if (userRepo.findByUsername(request.getUsername()).isPresent()) {
-            logger.warn("❌ Username already exists: {}", request.getUsername());
-            return ResponseEntity.badRequest().body("Username already exists");
-        }
-
-        try {
-            AppUser user = new AppUser();
-            user.setUsername(request.getUsername());
-            user.setPassword(passwordEncoder.encode(request.getPassword()));
-            user.setRole(request.getRole());
-
-            userRepo.save(user);
-            logger.info("✅ User registered successfully: {}", user.getUsername());
-            return ResponseEntity.ok("User registered successfully");
-        } catch (Exception e) {
-            logger.error("❌ Exception during registration", e);
-            return ResponseEntity.status(500).body("Registration failed");
-        }
+        return appUserService.registerUser(request);
     }
+
     @Transactional
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
@@ -90,8 +88,7 @@ public class AuthController {
             String accessToken = jwtUtil.generateToken(request.getUsername());
             String refreshToken = jwtUtil.generateRefreshToken(request.getUsername());
 
-            // Save refresh token to DB
-            refreshTokenRepo.deleteByUsername(request.getUsername()); // optional cleanup
+            refreshTokenRepo.deleteByUsername(request.getUsername()); // cleanup
             RefreshToken tokenEntity = new RefreshToken();
             tokenEntity.setToken(refreshToken);
             tokenEntity.setUsername(request.getUsername());
@@ -127,4 +124,27 @@ public class AuthController {
 
         return ResponseEntity.ok(new AuthResponse(newAccessToken, refreshToken));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        passwordService.createPasswordResetToken(request.getEmail());
+        return ResponseEntity.ok("Password reset link sent to email");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest request) {
+        passwordService.resetPassword(request.getToken(), request.getNewPassword());
+        return ResponseEntity.ok("Password updated successfully");
+    }
+
+    @GetMapping("/getall-users-details")
+    public List<AppUser> getAllUsersDetails() {
+        return userRepo.findAll();
+    }
+
+   @DeleteMapping("/delete-user/{id}")
+public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    userRepo.deleteById(id);
+    return ResponseEntity.ok("User deleted successfully");
+}
 }

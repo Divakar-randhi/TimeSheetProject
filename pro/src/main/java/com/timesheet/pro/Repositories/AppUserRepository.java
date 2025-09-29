@@ -12,10 +12,16 @@ import com.timesheet.pro.Entities.AppUser;
 
 @Repository
 public interface AppUserRepository extends JpaRepository<AppUser, Long> {
-    Optional<AppUser> findByUsername(String username);
-    default Optional<AppUser> logAndFindByUsername(String username) {
-    Logger logger = LoggerFactory.getLogger(UserRepository.class);
-    logger.debug("🔎 Checking if username exists in DB: {}", username);
-    return findByUsername(username);
-}
+    // Optional<AppUser> findByUsername(String username);
+    // default Optional<AppUser> logAndFindByUsername(String username) {
+    // Logger logger = LoggerFactory.getLogger(UserRepository.class);
+    // logger.debug("🔎 Checking if username exists in DB: {}", username);
+    // return findByUsername(username);
+
+     Optional<AppUser> findByUsername(String username);
+    Optional<AppUser> findByEmail(String email);
+    Optional<AppUser> findByResetToken(String resetToken);
+    boolean existsByEmail(String email);
+
+    
 }
