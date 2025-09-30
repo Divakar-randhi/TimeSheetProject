@@ -19,12 +19,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
- 
 
- 
- 
-
- 
  
  
 import java.io.IOException;
@@ -46,7 +41,6 @@ public class JwtFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         logger.debug("Incoming request URI: {}", request.getRequestURI());
 
-        // Skip JWT validation for /auth/ endpoints
         if (request.getRequestURI().startsWith("/auth/")) {
             logger.info("Skipping JWT validation for auth endpoint: {}", request.getRequestURI());
             filterChain.doFilter(request, response);
@@ -56,7 +50,6 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwt = null;
         String username = null;
 
-        // Extract JWT from Authorization header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
             try {
@@ -69,23 +62,21 @@ public class JwtFilter extends OncePerRequestFilter {
             logger.warn("❌ Authorization header missing or invalid format");
         }
 
-        // Validate token and set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            logger.debug("🔐 SecurityContextHolder now holds: {}", SecurityContextHolder.getContext().getAuthentication());
+            logger.debug("🔐 UserDetails authorities: {}", userDetails.getAuthorities());
 
             if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                logger.info("✅ Authentication set for user: {}", username);
+                logger.info("✅ Authentication set for user: {}. Authorities: {}", username, userDetails.getAuthorities());
             } else {
                 logger.warn("❌ Invalid JWT token for user: {}", username);
             }
         }
 
-        // Proceed with the filter chain
         filterChain.doFilter(request, response);
     }
 }

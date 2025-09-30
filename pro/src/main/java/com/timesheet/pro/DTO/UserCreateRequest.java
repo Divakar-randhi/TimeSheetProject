@@ -2,7 +2,7 @@ package com.timesheet.pro.DTO;
 
 import java.time.LocalDate;
 
-import org.springframework.web.multipart.MultipartFile;
+//import org.springframework.web.multipart.MultipartFile;
 
 import com.timesheet.pro.Enums.EducationQualification;
 import com.timesheet.pro.Enums.Gender;
@@ -25,5 +25,5 @@ public class UserCreateRequest {
     private String emergencyContactNumber;
     private Relationship relationship;
     private EducationQualification educationQualification;
-    private MultipartFile photo;
+  //  private MultipartFile photo;
 }

@@ -24,4 +24,5 @@ public class UserDTO {
     private String emergencyContactNumber;
     private Relationship relationship;
     private EducationQualification educationQualification;
+    private String email;
 }

@@ -79,33 +79,40 @@ public class User {
     @JsonIgnore
     private Team team;
 
-    @Lob
-@Basic(fetch = FetchType.LAZY)
-@Column(name = "photo_data")
-private byte[] photoData;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "app_user_id", referencedColumnName = "id", unique = true)
+    @JsonIgnore
+    private AppUser appUser;
 
-@Column(name = "photo_content_type", length = 100)
-private String photoContentType;
+//     @Lob
+// @Basic(fetch = FetchType.LAZY)
+// @Column(name = "photo_data")
+// private byte[] photoData;
 
-@Column(name = "photo_filename", length = 255)
-private String photoFileName;
+// @Column(name = "photo_content_type", length = 100)
+// private String photoContentType;
 
-@Column(name = "created_at", nullable = false, updatable = false)
-private LocalDateTime createdAt;
+// @Column(name = "photo_filename", length = 255)
+// private String photoFileName;
 
-@Column(name = "updated_at")
-private LocalDateTime updatedAt;
+// @Column(name = "created_at", nullable = false, updatable = false)
+// private LocalDateTime createdAt;
 
-@PrePersist
-protected void onCreate() {
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
-}
+// @Column(name = "updated_at")
+// private LocalDateTime updatedAt;
 
-@PreUpdate
-protected void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
-}
+// @PrePersist
+// protected void onCreate() {
+//     this.createdAt = LocalDateTime.now();
+//     this.updatedAt = LocalDateTime.now();
+// }
+
+// @PreUpdate
+// protected void onUpdate() {
+//     this.updatedAt = LocalDateTime.now();
+// }
+
+
 
 
 

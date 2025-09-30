@@ -1,12 +1,13 @@
 package com.timesheet.pro.Services;
 
-
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,6 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("🔍 Loading user from DB: {}", username);
+
         AppUser user = userRepo.findByUsername(username)
             .orElseThrow(() -> {
                 logger.warn("❌ User not found: {}", username);
@@ -34,14 +36,24 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         logger.debug("✅ User found: {}, Role: {}", user.getUsername(), user.getRole());
 
-        // Ensure role is prefixed with "ROLE_"
-        String role = user.getRole().startsWith("ROLE_") ? user.getRole() : "ROLE_" + user.getRole();
+        // Ensure role is prefixed with "ROLE_" and handle null case
+        String role = user.getRole();
+        if (role == null) {
+            role = "ROLE_USER"; // Default role if null
+        } else if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
 
-        return new org.springframework.security.core.userdetails.User(
-            user.getUsername(),
-            user.getPassword(),
-            List.of(new SimpleGrantedAuthority(role))
+        logger.info("🔐 Assigned role: {}", role);
+
+        // Safety check for null values
+        String usernameStr = (user.getUsername() != null) ? user.getUsername() : "";
+        String passwordStr = (user.getPassword() != null) ? user.getPassword() : "";
+
+        return new User(
+            usernameStr,
+            passwordStr,
+            Collections.singletonList(new SimpleGrantedAuthority(role))
         );
     }
 }
-

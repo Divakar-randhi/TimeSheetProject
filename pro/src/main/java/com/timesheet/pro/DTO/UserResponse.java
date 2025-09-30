@@ -28,6 +28,6 @@ public class UserResponse {
     private String emergencyContactNumber;
     private Relationship relationship;
     private EducationQualification educationQualification;
-     private boolean hasPhoto;
-    private String photoDownloadUrl;
+  //   private boolean hasPhoto;
+  //  private String photoDownloadUrl;
 }

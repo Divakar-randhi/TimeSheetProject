@@ -30,27 +30,23 @@ public class SecurityConfig {
     @Autowired
     private JwtFilter jwtFilter;
 
-    @Bean
+   @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         logger.info("🔐 Configuring SecurityFilterChain");
         return http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                 .requestMatchers("/auth/**").permitAll()
-                 .requestMatchers("/api/**").authenticated()
-                //.requestMatchers("/auth/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/auth/delete-user/**").permitAll()
-
-            .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-            .requestMatchers("/api/users/**").permitAll()
-        
-            
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/users/GetAll/**").hasRole("Admin") // Updated to match case-sensitive path
+                .requestMatchers("/api/users/postuser/**").hasRole("User")
+                .requestMatchers("/api/users/me").hasRole("User")
+                .requestMatchers("/api/users/{id}").hasRole("User")
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
-            
     }
 
     @Bean
