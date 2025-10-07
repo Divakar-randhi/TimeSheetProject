@@ -6,14 +6,18 @@ import com.timesheet.pro.Repositories.TimesheetRepository;
 import com.timesheet.pro.Repositories.TaskCategoryRepository;
 import com.timesheet.pro.Repositories.ShiftRepository;
 import com.timesheet.pro.Repositories.UserRepository;
+import com.timesheet.pro.excelexporter.TimesheetExcelExporter;
 import com.timesheet.pro.Entities.Shift;
 import com.timesheet.pro.Entities.User;
 import com.timesheet.pro.Entities.TaskCategory;
 
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +26,9 @@ public class TimesheetService {
     private final TaskCategoryRepository taskCategoryRepository;
     private final ShiftRepository shiftRepository;
     private final UserRepository userRepository;
+
+    @Autowired
+    private  TimesheetExcelExporter excelExporter;
 
     public TaskCategory getCategory(Integer id) {
         if (id == null) return null;
@@ -65,5 +72,26 @@ public class TimesheetService {
     }
 
     public void delete(Integer id) { timesheetRepository.deleteById(id); }
+
+    public List<TimesheetDTO> getAllTimesheets() {
+        return timesheetRepository.findAll().stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public void exportAllToExcel() {
+        List<Timesheet> timesheets = timesheetRepository.findAll();
+        excelExporter.exportAllTimesheets(timesheets);
+    }
+
+    private TimesheetDTO toDTO(Timesheet t) {
+        TimesheetDTO dto = new TimesheetDTO();
+        dto.setTimesheetId(t.getTimesheetId());
+        dto.setCategoryId(t.getCategory() != null ? t.getCategory().getCategoryId() : null);
+        dto.setShiftId(t.getShift() != null ? t.getShift().getShiftId() : null);
+        dto.setUserId(t.getUser() != null ? t.getUser().getUserId() : null);
+        dto.setWorkDate(t.getWorkDate());
+        dto.setHoursWorked(t.getHoursWorked());
+        dto.setDetails(t.getDetails());
+        return dto;
+    }
 }
 

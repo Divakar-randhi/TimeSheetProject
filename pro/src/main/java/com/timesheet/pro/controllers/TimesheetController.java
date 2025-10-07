@@ -1,7 +1,10 @@
 package com.timesheet.pro.controllers;
 
+import java.io.FileInputStream;
 import java.util.List;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,9 +24,21 @@ import com.timesheet.pro.Entities.Timesheet;
 import com.timesheet.pro.Entities.User;
 import com.timesheet.pro.Repositories.TaskCategoryRepository;
 import com.timesheet.pro.Services.TimesheetService;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import java.io.FileInputStream;
+import java.io.File;
+import java.io.IOException;
+
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("/api/timesheets")
@@ -84,6 +99,28 @@ public class TimesheetController {
     @GetMapping("/user/{id}")
     public User getUser(int id) {
         return service.getUser(id);
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<Resource> exportExcel() throws IOException {
+        service.exportAllToExcel();
+
+        String filePath = System.getProperty("user.home") + "/Downloads/timesheets.xlsx";
+        File file = new File(filePath);
+
+        if (!file.exists()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=timesheets.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(resource);
     }
    
 }
